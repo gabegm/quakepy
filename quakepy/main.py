@@ -15,31 +15,10 @@ def init_argparse() -> argparse.ArgumentParser:
         "-v", "--version", action="version",
         version = f"{parser.prog} version 1.0.0"
     )
-    parser.add_argument("lat", type=float_range(-90, 91), nargs=1)
-    parser.add_argument("lon", type=float_range(-90, 91), nargs=1)
+    parser.add_argument("lat", type=func.float_range(-90, 91), nargs=1)
+    parser.add_argument("lon", type=func.float_range(-90, 91), nargs=1)
 
     return parser
-
-def float_range(mini,maxi):
-    """Return function handle of an argument type function for
-       ArgumentParser checking a float range: mini <= arg <= maxi
-         mini - minimum acceptable argument
-         maxi - maximum acceptable argument"""
-
-    # Define the function with default arguments
-    def float_range_checker(arg):
-        """New Type function for argparse - a float within predefined range."""
-
-        try:
-            f = float(arg)
-        except ValueError:
-            raise argparse.ArgumentTypeError("must be a floating point number")
-        if f < mini or f > maxi:
-            raise argparse.ArgumentTypeError("must be in range [" + str(mini) + " .. " + str(maxi)+"]")
-        return f
-
-    # Return function handle to checking function
-    return float_range_checker
 
 def get_top_n(p: Point):
     columns = ["title", "geometry"]
