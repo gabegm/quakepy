@@ -1,4 +1,5 @@
 import argparse
+from argparse import ArgumentParser
 import logging
 
 from shapely import Point
@@ -6,8 +7,8 @@ from quakepy import functions as func
 
 logging.basicConfig(level=logging.INFO)
 
-def init_argparse() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+def init_argparse() -> ArgumentParser:
+    parser = ArgumentParser(
         usage="%(prog)s [LAT] [LON]",
         description="Get nearest 10 earthquakes in the last month"
     )

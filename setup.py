@@ -4,7 +4,7 @@ setup(
     name='quakepy',
     packages=find_packages(),
     version='0.1.0',
-    description='For a given city (we will provide lat/lon) will find out 10 most nearby earthquakes (earthquakes that happened in the closest proximity of that city).',
+    description='Find a list of the 10 most nearby earthquakes based on a LAT/LON coorindate provided.',
     author='gabegm',
     license='',
 )

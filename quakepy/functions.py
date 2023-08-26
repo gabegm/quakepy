@@ -2,9 +2,8 @@ import logging
 import argparse
 from typing import List
 
-import pandas as pd
 import geopandas as gpd
-from geopandas import GeoSeries, GeoDataFrame
+from geopandas import GeoDataFrame
 from pandas import Series, DataFrame
 from shapely import Point, wkb
 from pyproj import Transformer
@@ -15,13 +14,16 @@ from requests.exceptions import HTTPError, Timeout
 logging.basicConfig(level=logging.INFO)
 
 def pretty_print(df: DataFrame) -> str:
-    """_summary_
+    """Pretty print DataFrame in the following format
+    title || distance
+    title || distance
+    title || distance
 
     Args:
         df (DataFrame): DataFrame with top N earthquakes
 
     Returns:
-        str: _description_
+        str: String representation of DataFrame
     """
     x_title = df["title"].to_list()
     y_distance = df["distance"].to_list()
@@ -48,6 +50,7 @@ def calc_curve_distance(gdf: GeoDataFrame, p: Point) -> Series:
     transformer = Transformer.from_crs("EPSG:4979", "EPSG:32663")
     p = Point(transformer.transform(p.x, p.y))
 
+    logging.info("Calculating distance in KM")
     s_distance = gdf.distance(p).divide(1000).round(0).astype(int)
     s_distance.name = "distance"
 
@@ -64,6 +67,8 @@ def get_closest_n(df: DataFrame, n: int) -> DataFrame:
     Returns:
         DataFrame: Sorted by distance in ascending order
     """
+    logging.info(f"Retrieving nearest {n} earthquakes")
+
     return df.sort_values(by="distance", ascending=True)[:n]
 
 def get_data(columns: List[str]) -> GeoDataFrame:
@@ -88,6 +93,8 @@ def get_data(columns: List[str]) -> GeoDataFrame:
 
     _drop_z = lambda geom: wkb.loads(wkb.dumps(geom, output_dimension=2))
     gdf.geometry = gdf.geometry.transform(_drop_z)
+
+    logging.info("Dropped z coordinate from geometry")
 
     gdf_depublicated = gdf.drop_duplicates(subset=["geometry"])
 
@@ -122,6 +129,7 @@ def call_api(url:str) -> str:
     except Exception as err:
         logging.info(f"Other error occurred: {err}")
 
+    logging.info(f"Response {response.status_code}")
     return response.text
 
 def float_range(mini: float, maxi: float):
@@ -133,11 +141,11 @@ def float_range(mini: float, maxi: float):
         maxi (float): maximum acceptable argument
 
     Raises:
-        argparse.ArgumentTypeError: _description_
-        argparse.ArgumentTypeError: _description_
+        argparse.ArgumentTypeError: Not a floating point number
+        argparse.ArgumentTypeError: Not in range specified
 
     Returns:
-        _type_: _description_
+        _type_: type of float within specified range
     """
     # Define the function with default arguments
     def float_range_checker(arg):

@@ -1,16 +1,16 @@
-FROM python:3.10-buster
+FROM python:3.11.5-slim-bullseye
 LABEL author="Gabriel Gauci Maistre"
 
-# Set the ENTRYPOINT to use bash
-# (this is also where you’d set SHELL,
-# if your version of docker supports this)
-ENTRYPOINT [ "/bin/bash", "-c" ]
+RUN apt update && apt install -y gdal-bin libgdal-dev g++
+
+ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
+
+ENV C_INCLUDE_PATH=/usr/include/gdal
 
 ADD . /code
 WORKDIR /code
 
-EXPOSE 8887
+RUN chmod +x install.sh
+RUN /bin/bash -c './install.sh'
 
-# We set ENTRYPOINT, so while we still use exec mode, we don’t
-# explicitly call /bin/bash
-CMD [ "bash run.sh" ]
+ENTRYPOINT ["./run.sh"]
