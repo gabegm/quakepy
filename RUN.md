@@ -3,6 +3,10 @@ quakepy
 
 Find a list of the 10 most nearby earthquakes based on a LAT/LON coorindate provided.
 
+# Instructions
+
+You may choose to either use the Python or Docker method based on your preference.
+
 ## Install (Python)
 
 ```sh
