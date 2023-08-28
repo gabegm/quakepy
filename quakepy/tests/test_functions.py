@@ -1,7 +1,7 @@
 import unittest
 from argparse import ArgumentTypeError
 
-from shapely import Point
+from shapely import Point, wkb
 from quakepy import functions as func
 import geopandas as gpd
 
@@ -72,9 +72,12 @@ class TestSum(unittest.TestCase):
         assert top_10_one_str == top_10_two_str
 
     def test_argparse(self):
-       float_range = func.float_range(-90, 90)
-       assert float_range(40.730610)
-       assert float_range(-73.935242)
+        """Ensure arguments are of type float 
+        and within range.
+        """
+        float_range = func.float_range(-90, 90)
+        assert float_range(40.730610)
+        assert float_range(-73.935242)
 
-       with self.assertRaises(ArgumentTypeError):
-            float_range(200)
+        with self.assertRaises(ArgumentTypeError):
+                float_range(200)

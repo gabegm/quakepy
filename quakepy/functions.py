@@ -2,6 +2,7 @@ import logging
 import argparse
 from typing import List
 
+import numpy as np
 import geopandas as gpd
 from geopandas import GeoDataFrame
 from pandas import Series, DataFrame
@@ -45,13 +46,13 @@ def calc_curve_distance(gdf: GeoDataFrame, p: Point) -> Series:
         Series: Calculated distance for each earthquake.
     """
     logging.info("Reprojecting geometry")
-    gdf = gdf.to_crs(epsg=32663)
+    gdf_proj = gdf.to_crs(epsg=4087)
 
-    transformer = Transformer.from_crs("EPSG:4979", "EPSG:32663")
+    transformer = Transformer.from_crs("EPSG:4326", "EPSG:4087")
     p = Point(transformer.transform(p.x, p.y))
 
     logging.info("Calculating distance in KM")
-    s_distance = gdf.distance(p).divide(1000).round(0).astype(int)
+    s_distance = gdf_proj.distance(p).divide(1000).round(0).astype(int)
     s_distance.name = "distance"
 
     return s_distance
@@ -88,19 +89,19 @@ def get_data(columns: List[str]) -> GeoDataFrame:
     response = call_api(url)
 
     gdf = gpd.read_file(response)[columns]
+    gdf = gdf.to_crs(epsg=4326)
 
     logging.info(f"Finished processing {len(gdf)} rows")
 
-    _drop_z = lambda geom: wkb.loads(wkb.dumps(geom, output_dimension=2))
-    gdf.geometry = gdf.geometry.transform(_drop_z)
+    gdf.geometry = gdf.geometry.transform(lambda geom: wkb.loads(wkb.dumps(geom, output_dimension=2)))
 
     logging.info("Dropped z coordinate from geometry")
 
-    gdf_dedublicated = gdf.drop_duplicates(subset=["geometry"])
+    gdf_deduplication = gdf.drop_duplicates(subset=["geometry"], ignore_index=True)
 
-    logging.info(f"Dedublicated {len(gdf) - len(gdf_dedublicated)} rows")
+    logging.info(f"Dedublicated {len(gdf) - len(gdf_deduplication)} rows")
 
-    return gdf_dedublicated
+    return gdf_deduplication
 
 def call_api(url:str) -> str:
     """Make a GET request based on the provided URL. 
