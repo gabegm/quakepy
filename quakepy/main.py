@@ -26,7 +26,7 @@ def init_argparse() -> ArgumentParser:
 
     return parser
 
-def get_top_n(p: Point):
+def get_top_n(p: Point, reproj: bool):
     """Returnes the nearest 10 earthquakes
     based on the distance to the point provided.
 
@@ -37,25 +37,32 @@ def get_top_n(p: Point):
         _type_: Pretty printed results of nearest 10 earthquakes
     """
     columns = ["title", "geometry"]
-    gdf = func.get_data(columns)
+    gdf = func.get_data(columns, reproj)
 
-    gdf["distance"] = func.calc_curve_distance(gdf, p)
+    if reproj:
+        gdf["distance"] = func.calc_curve_distance(gdf, p)
+    else:
+        gdf["distance"] = func.haversine(gdf["geometry"].values, p, 6371)
+
     df_closest = func.get_closest_n(gdf, 10)
     top_10_str = func.pretty_print(df_closest)
 
     return top_10_str
 
-def main() -> None:
+def main(reproj: bool) -> None:
     parser = init_argparse()
     args = parser.parse_args()
 
     logging.info(f"Received coordinates: {args.lat[0]}, {args.lon[0]}")
 
-    p = Point(args.lat, args.lon)
+    if reproj:
+        p = Point(args.lat, args.lon)
+    else:
+        p = Point(args.lon, args.lat)
 
-    s = get_top_n(p)
+    s = get_top_n(p, False)
 
     print(s)
 
 if __name__ == "__main__":
-    main()
+    main(False)

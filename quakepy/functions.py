@@ -2,8 +2,11 @@ import logging
 import argparse
 from typing import List
 
+import numpy as np
+from numpy import array
 import geopandas as gpd
 from geopandas import GeoDataFrame
+from geopandas.array import GeometryArray
 from pandas import Series, DataFrame
 from shapely import Point, wkb
 from pyproj import Transformer
@@ -71,7 +74,7 @@ def get_closest_n(df: DataFrame, n: int) -> DataFrame:
 
     return df.sort_values(by="distance", ascending=True)[:n]
 
-def get_data(columns: List[str]) -> GeoDataFrame:
+def get_data(columns: List[str], reproj: bool) -> GeoDataFrame:
     """Call the earthquake API to get the list 
     of earthquakes in the last 30 days and drop 
     the x coordinate as this is not needed. 
@@ -88,7 +91,9 @@ def get_data(columns: List[str]) -> GeoDataFrame:
     response = call_api(url)
 
     gdf = gpd.read_file(response)[columns]
-    gdf = gdf.to_crs(epsg=4326)
+
+    if reproj:
+        gdf = gdf.to_crs(epsg=4326)
 
     logging.info(f"Finished processing {len(gdf)} rows")
 
@@ -161,3 +166,22 @@ def float_range(mini: float, maxi: float):
 
     # Return function handle to checking function
     return float_range_checker
+
+def haversine(a: GeometryArray, p: Point, r: int) -> array:
+    """Calculate haversine distance
+
+    Args:
+        a (GeometryArray): List of Points
+        p (Point): One point
+        r (int): Determines return value units. Use 6371 for radius of earth in kilometers or 3956 for miles.
+
+    Returns:
+        _type_: _description_
+    """
+    lon1, lat1, lon2, lat2 = np.radians(a.x), np.radians(a.y), np.radians(p.x), np.radians(p.y)
+    dlon = np.subtract(lon2, lon1)
+    dlat = np.subtract(lat2, lat1)
+    a = np.add(np.square(np.sin(np.divide(dlat, 2))), np.multiply(np.multiply(np.cos(lat1), np.cos(lat2)), np.square(np.sin(np.divide(dlon, 2)))))
+    c = np.multiply(np.arcsin(np.sqrt(a)), 2)
+
+    return np.around(np.multiply(c, r), 0).astype(np.int64)
