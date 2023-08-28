@@ -96,11 +96,11 @@ def get_data(columns: List[str]) -> GeoDataFrame:
 
     logging.info("Dropped z coordinate from geometry")
 
-    gdf_depublicated = gdf.drop_duplicates(subset=["geometry"])
+    gdf_dedublicated = gdf.drop_duplicates(subset=["geometry"])
 
-    logging.info(f"Depublicated {len(gdf) - len(gdf_depublicated)} rows")
+    logging.info(f"Dedublicated {len(gdf) - len(gdf_dedublicated)} rows")
 
-    return gdf_depublicated
+    return gdf_dedublicated
 
 def call_api(url:str) -> str:
     """Make a GET request based on the provided URL. 
