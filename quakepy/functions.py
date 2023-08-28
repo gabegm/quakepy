@@ -2,7 +2,6 @@ import logging
 import argparse
 from typing import List
 
-import numpy as np
 import geopandas as gpd
 from geopandas import GeoDataFrame
 from pandas import Series, DataFrame

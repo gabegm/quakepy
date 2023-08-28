@@ -1,7 +1,7 @@
 import unittest
 from argparse import ArgumentTypeError
 
-from shapely import Point, wkb
+from shapely import Point
 from quakepy import functions as func
 import geopandas as gpd
 
@@ -17,15 +17,7 @@ class TestSum(unittest.TestCase):
 
         assert len(gdf) == len(s_distance)
         assert s_distance.dtype == int
-
-    def test_div_rounding(self):
-        #p = Point(40.730610, -73.935242)
-        p = Point(34.028622, -117.810333)
-        gdf = gpd.read_file("data/raw/all_month.geojson")
-
-        s_distance = func.calc_curve_distance(gdf[:1], p)
-
-        assert s_distance[0] == 157
+        assert s_distance[0] == 5084
 
     def test_get_closest_n(self):
         """Ensure that a length of N is retruned
