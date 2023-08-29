@@ -4,7 +4,6 @@ LABEL author="Gabriel Gauci Maistre"
 RUN apt update && apt install -y gdal-bin libgdal-dev g++
 
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
-
 ENV C_INCLUDE_PATH=/usr/include/gdal
 
 ADD . /code

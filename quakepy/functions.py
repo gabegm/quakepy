@@ -73,7 +73,7 @@ def get_data(columns: List[str]) -> GeoDataFrame:
 
     gdf_deduplication = gdf.drop_duplicates(subset=["geometry"], ignore_index=True)
 
-    logging.info(f"Dedublicated {len(gdf) - len(gdf_deduplication)} rows")
+    logging.info(f"Deduplicated {len(gdf) - len(gdf_deduplication)} rows")
 
     return gdf_deduplication
 
