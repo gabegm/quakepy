@@ -10,14 +10,14 @@ class TestSum(unittest.TestCase):
         """Ensure that calculated distance has the
         same length as the original dataframe.
         """
-        p = Point(40.730610, -73.935242)
-        gdf = gpd.read_file("data/raw/all_month.geojson")
+        p = Point(-73.935242, 40.730610)
+        gdf = gpd.read_file("data/raw/all_month.geojson")[:1]
 
-        s_distance = func.calc_curve_distance(gdf, p)
+        s_distance = func.haversine(gdf["geometry"].values, p, 6371)
 
         assert len(gdf) == len(s_distance)
         assert s_distance.dtype == int
-        assert s_distance[0] == 5084
+        assert s_distance[0] == 4003
 
     def test_get_closest_n(self):
         """Ensure that a length of N is retruned
@@ -27,7 +27,7 @@ class TestSum(unittest.TestCase):
         p = Point(40.730610, -73.935242)
 
         gdf = gpd.read_file("data/raw/all_month.geojson")
-        gdf["distance"] = func.calc_curve_distance(gdf, p)
+        gdf["distance"] = func.haversine(gdf["geometry"].values, p, 6371)
         gdf_n = func.get_closest_n(gdf, n)
 
         assert len(gdf_n) == n
@@ -52,8 +52,8 @@ class TestSum(unittest.TestCase):
         gdf_one = gpd.read_file("data/raw/all_month.geojson")
         gdf_two = gpd.read_file("data/raw/all_month.geojson")
 
-        gdf_one["distance"] = func.calc_curve_distance(gdf_one, p)
-        gdf_two["distance"] = func.calc_curve_distance(gdf_two, p)
+        gdf_one["distance"] = func.haversine(gdf_one["geometry"].values, p, 6371)
+        gdf_two["distance"] = func.haversine(gdf_two["geometry"].values, p, 6371)
 
         df_one_closest = func.get_closest_n(gdf_one, 10)
         df_two_closest = func.get_closest_n(gdf_two, 10)

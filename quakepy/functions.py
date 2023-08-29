@@ -7,9 +7,8 @@ from numpy import array
 import geopandas as gpd
 from geopandas import GeoDataFrame
 from geopandas.array import GeometryArray
-from pandas import Series, DataFrame
+from pandas import DataFrame
 from shapely import Point, wkb
-from pyproj import Transformer
 
 import requests
 from requests.exceptions import HTTPError, Timeout
@@ -33,32 +32,6 @@ def pretty_print(df: DataFrame) -> str:
 
     return ''.join([str(x) + " || " + str(y) + '\n' for x,y in zip(x_title, y_distance)])
 
-def calc_curve_distance(gdf: GeoDataFrame, p: Point) -> Series:
-    """Reproject both geometries from degrees into 
-    metres and calculate the distance between the 
-    point and all  points in the GeoDataFrame. 
-    The distance is then converted into kilometres 
-    and rounded to a whole number.
-
-    Args:
-        gdf (GeoDataFrame): List of earthquakes
-        p (Point): Inpur coordinates
-
-    Returns:
-        Series: Calculated distance for each earthquake.
-    """
-    logging.info("Reprojecting geometry")
-    gdf_proj = gdf.to_crs(epsg=4087)
-
-    transformer = Transformer.from_crs("EPSG:4326", "EPSG:4087")
-    p = Point(transformer.transform(p.x, p.y))
-
-    logging.info("Calculating distance in KM")
-    s_distance = gdf_proj.distance(p).divide(1000).round(0).astype(int)
-    s_distance.name = "distance"
-
-    return s_distance
-
 def get_closest_n(df: DataFrame, n: int) -> DataFrame:
     """Sort rows by distance in ascending 
     order and return the top n rows.
@@ -74,7 +47,7 @@ def get_closest_n(df: DataFrame, n: int) -> DataFrame:
 
     return df.sort_values(by="distance", ascending=True)[:n]
 
-def get_data(columns: List[str], reproj: bool) -> GeoDataFrame:
+def get_data(columns: List[str]) -> GeoDataFrame:
     """Call the earthquake API to get the list 
     of earthquakes in the last 30 days and drop 
     the x coordinate as this is not needed. 
@@ -91,9 +64,6 @@ def get_data(columns: List[str], reproj: bool) -> GeoDataFrame:
     response = call_api(url)
 
     gdf = gpd.read_file(response)[columns]
-
-    if reproj:
-        gdf = gdf.to_crs(epsg=4326)
 
     logging.info(f"Finished processing {len(gdf)} rows")
 
