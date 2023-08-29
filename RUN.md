@@ -23,7 +23,7 @@ $ docker build -t quakepy .
 ## Run (Python)
 
 ```sh
-(quakepy) $ python quakepy/main.py 40.730610, -73.935242
+(quakepy) $ python quakepy/main.py 40.730610 -73.935242
 
 M 1.0 - 1 km SW of Meridian, New York || 397
 M 1.0 - 22 km NE of Skatepark, Canada || 518
