@@ -2,5 +2,5 @@
 
 mkdir ~/.venvs
 python3 -m venv ~/.venvs/quakepy
-source ~/.venv/quakepy/bin/activate
+source ~/.venvs/quakepy/bin/activate
 pip3 install -r requirements.txt
